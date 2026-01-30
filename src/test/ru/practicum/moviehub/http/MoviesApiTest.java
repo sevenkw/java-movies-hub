@@ -285,8 +285,8 @@ public class MoviesApiTest {
         HttpResponse<String> response = client.send(getReq, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
         assertEquals(400, response.statusCode(), "Должен вернуть 400");
 
-        String ContentType = response.headers().firstValue("Content-Type").orElse("");
-        assertEquals("application/json; charset=UTF-8", ContentType);
+        String contentType = response.headers().firstValue("Content-Type").orElse("");
+        assertEquals("application/json; charset=UTF-8", contentType);
 
         String body = response.body().trim();
         assertTrue(body.contains("\"error\":\"Некорректный формат года\""),
