@@ -1,6 +1,5 @@
 package ru.practicum.moviehub.http;
 
-import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpExchange;
 import ru.practicum.moviehub.api.ErrorResponse;
 import ru.practicum.moviehub.model.Movie;
@@ -12,8 +11,11 @@ import java.time.LocalDate;
 import java.util.List;
 
 public class MoviesHandler extends BaseHttpHandler {
-    private final Gson gson = new Gson();
-    private final MoviesStore moviesStore = new MoviesStore();
+    private final MoviesStore moviesStore;
+
+    public MoviesHandler(MoviesStore moviesStore) {
+        this.moviesStore = moviesStore;
+    }
 
 
     @Override
@@ -22,7 +24,7 @@ public class MoviesHandler extends BaseHttpHandler {
         String method = exchange.getRequestMethod();
         String path = exchange.getRequestURI().getPath();
 
-        if ("GET".equals(method) && "/movies".equals(path)) {
+        if ("GET".equalsIgnoreCase(method) && "/movies".equals(path)) {
             String query = exchange.getRequestURI().getQuery();
 
             if (query != null && query.startsWith("year=")) {
@@ -50,7 +52,7 @@ public class MoviesHandler extends BaseHttpHandler {
                 sendJson(exchange, 200, json);
             }
 
-        } else if ("POST".equals(method) && "/movies".equals(path)) {
+        } else if ("POST".equalsIgnoreCase(method) && "/movies".equals(path)) {
 
             String contentType = exchange.getRequestHeaders().getFirst("Content-Type");
 
@@ -77,7 +79,7 @@ public class MoviesHandler extends BaseHttpHandler {
             } catch (Exception e) {
                 sendJson(exchange, 400, gson.toJson(new ErrorResponse("Некорректный JSON")));
             }
-        } else if ("GET".equals(method) && path.startsWith("/movies/")) {
+        } else if ("GET".equalsIgnoreCase(method) && path.startsWith("/movies/")) {
             String[] pathParts = path.split("/");
             if (pathParts.length == 3) {
                 try {
@@ -97,7 +99,7 @@ public class MoviesHandler extends BaseHttpHandler {
             } else {
                 sendJson(exchange, 400, gson.toJson(new ErrorResponse("Некорректный путь")));
             }
-        } else if ("DELETE".equals(method) && path.startsWith("/movies/")) {
+        } else if ("DELETE".equalsIgnoreCase(method) && path.startsWith("/movies/")) {
             String[] pathParts = path.split("/");
             if (pathParts.length == 3) {
                 try {
@@ -116,8 +118,9 @@ public class MoviesHandler extends BaseHttpHandler {
             } else {
                 sendJson(exchange, 400, gson.toJson(new ErrorResponse("Некорректный путь")));
             }
+        } else {
+            sendJson(exchange, 405, gson.toJson(new ErrorResponse("Метод не поддерживается")));
         }
     }
-
 }
 

@@ -1,26 +1,27 @@
 package ru.practicum.moviehub.http;
 
 import com.sun.net.httpserver.HttpServer;
+import ru.practicum.moviehub.store.MoviesStore;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
 
 public class MoviesServer {
     private final HttpServer server;
-
+    private final MoviesStore moviesStore;
 
     public MoviesServer() {
         try {
+            this.moviesStore = new MoviesStore();
             server = HttpServer.create(new InetSocketAddress(8080), 0);
 
             // Добавьте контекст для /movies и укажите созданный хендлер
-            server.createContext("/movies", new MoviesHandler());
+            server.createContext("/movies", new MoviesHandler(moviesStore));
 
         } catch (IOException e) {
             throw new RuntimeException("Не удалось создать HTTP-сервер", e);
         }
     }
-
 
     public void start() {
         server.start();
@@ -30,5 +31,9 @@ public class MoviesServer {
     public void stop() {
         server.stop(0);
         System.out.println("Сервер остановлен");
+    }
+
+    public MoviesStore getMoviesStore() {
+        return moviesStore;
     }
 }
